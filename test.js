@@ -1,23 +1,42 @@
 var test = require('tape');
 var disque = require('./index');
 
+const NODES = ['127.0.0.1:7711', '127.0.0.1:7712', '127.0.0.1:7713'];
+
 function prepare(cb) {
   return function(t) {
-    var client = disque.connect(['127.0.0.1:7711', '127.0.0.1:7712', '127.0.0.1:7713']);
+    var client = disque.connect(NODES);
 
-    var end = t.end
+    Promise.all(NODES.map(function(node) {
+      return new Promise(function(resolve, reject) {
+        var c = disque.connect([node]);
 
-    t.end = function(err) {
-      client.quit();
-      end.call(t, err);
-    };
+        c.call('DEBUG', 'FLUSHALL', function(err, res) {
+          if (err) return reject(err);
+          resolve(c);
+        });
+      });
+    })).then(function(clients) {
+      clients.forEach(function(c) {
+        c.quit();
+      });
 
-    try {
-      cb(t, client);
-    }
-    catch (ex) {
-      t.end(new Error(ex));
-    }
+      var end = t.end
+
+      t.end = function(err) {
+        client.quit();
+        end.call(t, err);
+      };
+
+      try {
+        cb(t, client);
+      }
+      catch (ex) {
+        t.end(new Error(ex));
+      }
+    }).catch(function(err) {
+      t.end(err);
+    });
   }
 }
 
