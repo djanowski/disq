@@ -36,3 +36,15 @@ test('info', prepare(function(t, client) {
     t.end(err);
   });
 }));
+
+test('addjob', prepare(function(t, client) {
+  client.addjob('q1', 'j1', 0, function(err, res) {
+    t.assert(err === null);
+    t.assert(res.length > 0);
+
+    client.info(function(err, info) {
+      t.equal(info.registered_jobs, '1');
+      t.end(err);
+    });
+  });
+}));

@@ -62,7 +62,15 @@ function connect(addresses, options) {
     return result;
   }
 
-  return Object.create({ call: call, quit: quit, info: info });
+  function addjob(queue, job, timeout, cb) {
+    call('ADDJOB', queue, job, timeout, function(err, res) {
+      if (err) return cb(err);
+
+      cb(null, res);
+    });
+  }
+
+  return Object.create({ call: call, quit: quit, info: info, addjob: addjob });
 }
 
 module.exports = {
