@@ -36,7 +36,33 @@ function connect(addresses, options) {
     call('QUIT');
   }
 
-  return Object.create({ call: call, quit: quit });
+  function info(cb) {
+    call('INFO', function(err, res) {
+      if (err) return cb(err);
+
+      cb(null, parseInfo(res));
+    });
+  }
+
+  function parseInfo(str) {
+    var result = {};
+
+    str
+      .split("\r\n")
+      .forEach(function(line) {
+        if (line.length === 0 || line[0] === '#') return;
+
+        var parts = line.split(':', 2)
+          , key = parts[0]
+          , value = parts[1];
+
+        result[key] = value;
+      });
+
+    return result;
+  }
+
+  return Object.create({ call: call, quit: quit, info: info });
 }
 
 module.exports = {

@@ -9,10 +9,15 @@ function prepare(cb) {
 
     t.end = function(err) {
       client.quit();
-      end.apply(t, err);
+      end.call(t, err);
     };
 
-    cb(t, client);
+    try {
+      cb(t, client);
+    }
+    catch (ex) {
+      t.end(new Error(ex));
+    }
   }
 }
 
@@ -20,6 +25,14 @@ test('ping', prepare(function(t, client) {
   client.call('PING', function(err, res) {
     t.assert(err == null);
     t.equal(res, 'PONG');
+    t.end(err);
+  });
+}));
+
+test('info', prepare(function(t, client) {
+  client.info(function(err, res) {
+    t.assert(err === null);
+    t.equal(res.loading, '0');
     t.end(err);
   });
 }));
