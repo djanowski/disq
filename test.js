@@ -67,3 +67,21 @@ test('addjob', prepare(function(t, client) {
     });
   });
 }));
+
+test('getjob', prepare(function(t, client) {
+  client.addjob('q3', 'j3', 0, function(err, res) {
+    t.assert(err === null);
+
+    client.getjob(['q3'], function(err, jobs) {
+      t.assert(err === null);
+      t.equal(jobs.length, 1);
+
+      var job = jobs[0];
+
+      t.equal(job[0], 'q3');
+      t.assert(job[1].length > 0);
+      t.equal(job[2], 'j3');
+      t.end(err);
+    });
+  });
+}));

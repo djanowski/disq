@@ -70,7 +70,15 @@ function connect(addresses, options) {
     });
   }
 
-  return Object.create({ call: call, quit: quit, info: info, addjob: addjob });
+  function getjob(queues, cb) {
+    var args = ['GETJOB', 'FROM'].concat(queues);
+
+    args.push(cb);
+
+    call.apply(this, args);
+  }
+
+  return Object.create({ call: call, quit: quit, info: info, addjob: addjob, getjob: getjob });
 }
 
 module.exports = {
