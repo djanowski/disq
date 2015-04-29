@@ -1,10 +1,27 @@
+DIR?=./tmp
+
+all: start test stop
+
 test:
-	node test.js
+	npm test
 
-start_redis:
-	redis-server --daemonize yes --port 10001 --requirepass test
+start: 7711 7712 7713
+	@disque -p 7712 CLUSTER MEET 127.0.0.1 7711 > /dev/null
+	@disque -p 7713 CLUSTER MEET 127.0.0.1 7712 > /dev/null
 
-stop_redis:
-	redis-cli -p 10001 -a test SHUTDOWN
+stop:
+	@kill `cat $(DIR)/disque.*.pid`
+
+%:
+	@disque-server \
+		--port $@ \
+		--dir $(DIR) \
+		--daemonize yes \
+		--bind 127.0.0.1 \
+		--loglevel notice \
+		--pidfile disque.$@.pid \
+		--appendfilename disque.$@.aof \
+		--cluster-config-file disque.$@.nodes \
+		--logfile disque.$@.log
 
 .PHONY: test

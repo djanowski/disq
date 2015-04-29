@@ -1,35 +1,26 @@
-# redic.js
+# disque.js
 
-Inspired from [Redic](https://github.com/amakawa/redic)
+Currently under development. You won't be able to use this even if you wanted to.
 
-# usage
+Inspired from [redic.js](https://github.com/cyx/redic.js) (which is inspired by [Redic](https://github.com/amakawa/redic)).
+
+# Usage
 
 ```javascript
-var redic = require('redic');
-var client = redic.connect(10001, 'localhost');
+var disque = require('disque.js');
+var client = disque.connect(['127.0.0.1:7710']);
 
-client.call(['AUTH', 'test'], function(err, res) {
-    console.log(err, res);
+client.call('PING', function(err, res) {
+  if (err) console.error(err);
 
-    client.call(['SET', 'foo', 'bar'], function(err, res) {
-        client.call(['GET', 'foo'], function(err, res) {
-            console.log(err, res);
-        
-            client.call(['QUIT']);
-        });
-    });
+  console.log(res);
+
+  client.quit();
 });
 ```
 
-# why?
+# License
 
-an initial attempt for a simpler Redis client for node.
+MIT.
 
-# roadmap
-
-- remove hiredis? (because of compatibility with node 0.11.x)
-- more testing
-
-# license
-
-MIT
+Originally forked from Cyril David's [redic.js](https://github.com/cyx/redic.js).
