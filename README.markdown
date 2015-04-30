@@ -2,7 +2,7 @@
 
 A simple Disque client for Node.js and io.js.
 
-Currently under development. You won't be able to use this even if you wanted to.
+Currently under development, but it's already usable and useful.
 
 Inspired by [redic.js](https://github.com/cyx/redic.js) (which is inspired
 by [Redic](https://github.com/amakawa/redic)).
