@@ -67,8 +67,21 @@ function connect(addresses, options) {
     return result;
   }
 
-  function addjob(queue, job, timeout, cb) {
-    call('ADDJOB', queue, job, timeout, cb);
+  function addjob(queue, job, timeout) {
+    var args = ['ADDJOB', queue, job, timeout];
+    var cb;
+
+    if (typeof arguments[3] === 'object') {
+      args.push.apply(args, options(arguments[3]));
+      cb = arguments[4];
+    }
+    else {
+      cb = arguments[3];
+    }
+
+    args.push(cb);
+
+    call.apply(this, args);
   }
 
   function getjob(queues) {

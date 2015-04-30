@@ -77,6 +77,18 @@ test('addjob', prepare(function(t, client) {
   });
 }));
 
+test('addjob with options', prepare(function(t, client) {
+  client.addjob('q1', 'j1', 0, function() {
+    client.addjob('q1', 'j2', 0, function() {
+      client.addjob('q1', 'j3', 0, {maxlen: 1}, function(err, res) {
+        t.assert(err);
+        t.assert(res == null);
+        t.end();
+      });
+    });
+  });
+}));
+
 test('getjob', prepare(function(t, client) {
   client.addjob('q3', 'j3', 0, function(err, res) {
     t.assert(err === null);
