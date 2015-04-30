@@ -85,3 +85,21 @@ test('getjob', prepare(function(t, client) {
     });
   });
 }));
+
+test('getjob with options', prepare(function(t, client) {
+  client.addjob('q4', 'j4', 0, function() {
+    client.addjob('q4', 'j5', 0, function() {
+      client.getjob(['q4'], {count: 1}, function(err, jobs) {
+        t.assert(err === null);
+        t.equal(jobs.length, 1);
+
+        var job = jobs[0];
+
+        t.equal(job[0], 'q4');
+        t.assert(job[1].length > 0);
+        t.equal(job[2], 'j4');
+        t.end(err);
+      });
+    });
+  });
+}));

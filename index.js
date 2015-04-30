@@ -63,19 +63,38 @@ function connect(addresses, options) {
   }
 
   function addjob(queue, job, timeout, cb) {
-    call('ADDJOB', queue, job, timeout, function(err, res) {
-      if (err) return cb(err);
-
-      cb(null, res);
-    });
+    call('ADDJOB', queue, job, timeout, cb);
   }
 
-  function getjob(queues, cb) {
-    var args = ['GETJOB', 'FROM'].concat(queues);
+  function getjob(queues) {
+    var args = ['GETJOB'];
+    var cb;
 
+    if (typeof arguments[1] === 'object') {
+      args.push.apply(args, options(arguments[1]));
+      cb = arguments[2];
+    }
+    else {
+      cb = arguments[1];
+    }
+
+    args.push('FROM');
+    args.push.apply(args, queues);
     args.push(cb);
 
     call.apply(this, args);
+  }
+
+  function options(obj) {
+    var keys = Object.keys(obj);
+    var result = Array(keys.length * 2);
+
+    keys.forEach(function(key, i) {
+      result[i*2] = key;
+      result[i*2+1] = obj[key];
+    });
+
+    return result;
   }
 
   return Object.create({ call: call, quit: quit, info: info, addjob: addjob, getjob: getjob });
