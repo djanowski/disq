@@ -158,3 +158,16 @@ test('connect to the best node for job consumption', prepare(function(t, client)
     }
   });
 }));
+
+test('ackjob', prepare(function(t, client) {
+  client.addjob('q6', 'j1', 0, function(err, id) {
+    client.ackjob(id, function(err, count) {
+      t.equal(count, 1);
+
+      client.call('SHOW', id, function(err, info) {
+        t.assert(info === null);
+        t.end(err);
+      });
+    });
+  });
+}));

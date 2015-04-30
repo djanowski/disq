@@ -5,7 +5,10 @@ var slice = Array.prototype.slice;
 function connect(addresses, opts) {
   opts = opts || {};
 
-  var obj = Object.create({ call: call, quit: quit, info: info, addjob: addjob, getjob: getjob });
+  var obj = Object.create({
+    addjob: addjob, ackjob: ackjob, call: call,
+    getjob: getjob, info: info, quit: quit
+  });
 
   var sock = create(addresses[0]);
 
@@ -114,6 +117,10 @@ function connect(addresses, opts) {
     args[args.length - 1] = recorder(cb);
 
     call.apply(this, args);
+  }
+
+  function ackjob(id, cb) {
+    call('ACKJOB', id, cb);
   }
 
   function statsmax(stats) {
