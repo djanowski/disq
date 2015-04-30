@@ -6,8 +6,9 @@ test:
 	npm test
 
 start: 7711 7712 7713
-	@disque -p 7712 CLUSTER MEET 127.0.0.1 7711 > /dev/null
-	@disque -p 7713 CLUSTER MEET 127.0.0.1 7712 > /dev/null
+	@while [ ! `disque cluster nodes | grep ' connected$$' | wc -l` -eq $(words $^) ]; do \
+		sleep 0.1; \
+	done
 
 stop:
 	@kill `cat $(DIR)/disque.*.pid`
@@ -23,5 +24,6 @@ stop:
 		--appendfilename disque.$@.aof \
 		--cluster-config-file disque.$@.nodes \
 		--logfile disque.$@.log
+	@disque -p $@ CLUSTER MEET 127.0.0.1 7711 > /dev/null
 
-.PHONY: test
+.PHONY: test all
