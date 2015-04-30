@@ -68,39 +68,34 @@ function connect(addresses, options) {
   }
 
   function addjob(queue, job, timeout) {
-    var args = ['ADDJOB', queue, job, timeout];
-    var cb;
-
-    if (typeof arguments[3] === 'object') {
-      args.push.apply(args, options(arguments[3]));
-      cb = arguments[4];
-    }
-    else {
-      cb = arguments[3];
-    }
-
-    args.push(cb);
+    var args = buildargs(['ADDJOB', queue, job, timeout], [], arguments);
 
     call.apply(this, args);
   }
 
   function getjob(queues) {
-    var args = ['GETJOB'];
-    var cb;
-
-    if (typeof arguments[1] === 'object') {
-      args.push.apply(args, options(arguments[1]));
-      cb = arguments[2];
-    }
-    else {
-      cb = arguments[1];
-    }
-
-    args.push('FROM');
-    args.push.apply(args, queues);
-    args.push(cb);
+    var args = buildargs(['GETJOB'], ['FROM'].concat(queues), arguments);
 
     call.apply(this, args);
+  }
+
+  function buildargs(prelude, postlude, args) {
+    var arity = args.callee.length
+      , result = slice.call(prelude)
+      , cb;
+
+    if (typeof args[arity] === 'object') {
+      result.push.apply(result, options(args[arity]));
+      cb = args[arity + 1];
+    }
+    else {
+      cb = args[arity];
+    }
+
+    result.push.apply(result, postlude);
+    result.push(cb);
+
+    return result;
   }
 
   function options(obj) {
