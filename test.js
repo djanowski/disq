@@ -2,10 +2,12 @@ var test = require('tape');
 var disque = require('./index');
 
 const NODES = ['127.0.0.1:7711', '127.0.0.1:7712', '127.0.0.1:7713'];
+const CYCLE = 5;
+const OPTIONS = {cycle: CYCLE, maxListeners: CYCLE * 2 + 1};
 
 function prepare(cb) {
   return function(t) {
-    var client = disque.connect(NODES);
+    var client = disque.connect(NODES, OPTIONS);
 
     Promise.all(NODES.map(function(node) {
       return new Promise(function(resolve, reject) {
@@ -122,5 +124,37 @@ test('getjob with options', prepare(function(t, client) {
         t.end(err);
       });
     });
+  });
+}));
+
+test('connect to the best node for job consumption', prepare(function(t, client) {
+  var c1 = disque.connect([NODES[1]], OPTIONS);
+
+  client.call('PING', function() {
+    var count = 0
+      , prefix = client.prefix;
+
+    t.assert(prefix.length === 8);
+    t.notEqual(prefix, c1.prefix);
+
+    var check = function(err) {
+      client.call('PING', function(err) {
+        t.equal(client.prefix, c1.prefix);
+        t.end(err);
+      });
+    }
+
+    for (var i = 0; i < CYCLE; i++) {
+      c1.addjob('q5', 'j1', 0, function(err, res) {
+        client.getjob(['q5'], {count: 1}, function(err, jobs) {
+          count++;
+
+          if (count === CYCLE) {
+            c1.quit();
+            check();
+          }
+        });
+      });
+    }
   });
 }));
