@@ -119,8 +119,15 @@ function connect(addresses, opts) {
     call.apply(this, args);
   }
 
-  function ackjob(id, cb) {
-    call('ACKJOB', id, cb);
+  function ackjob(ids, cb) {
+    var args = ['ACKJOB'];
+
+    if (!(ids instanceof Array)) ids = [ids];
+
+    args.push.apply(args, ids)
+    args.push(cb);
+
+    call.apply(this, args);
   }
 
   function statsmax(stats) {

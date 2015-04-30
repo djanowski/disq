@@ -171,3 +171,18 @@ test('ackjob', prepare(function(t, client) {
     });
   });
 }));
+
+test('ackjob with multiple IDs', prepare(function(t, client) {
+  client.addjob('q7', 'j1', 0, function(err, id1) {
+    client.addjob('q7', 'j2', 0, function(err, id2) {
+      client.ackjob([id1, id2], function(err, count) {
+        t.equal(count, 2);
+
+        client.call('SHOW', id1, function(err, info) {
+          t.assert(info === null);
+          t.end(err);
+        });
+      });
+    });
+  });
+}));
