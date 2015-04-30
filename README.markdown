@@ -22,9 +22,9 @@ client.addjob('queue1', 'foo', 0, function(err, res) {
 // Meanwhile in a parallel universe
 client.getjob(['queue1'], function(err, jobs) {
   jobs.forEach(function(job) {
-    var queue   = job[0],
+    var queue   = job[0]
       , id      = job[1]
-      , payload = job[2]
+      , payload = job[2];
 
     doVeryHeavyWork(payload);
 
