@@ -56,6 +56,15 @@ test('info', prepare(function(t, client) {
   });
 }));
 
+test('errors in callbacks', prepare(function(t, client) {
+  client.call('FOOBAR', function(err, res) {
+    t.assert(err);
+    t.assert(err.message.match(/^ERR unknown command/));
+    t.equal(res, undefined);
+    t.end();
+  });
+}));
+
 test('addjob', prepare(function(t, client) {
   client.addjob('q1', 'j1', 0, function(err, res) {
     t.assert(err === null);

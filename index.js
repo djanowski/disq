@@ -11,7 +11,12 @@ function connect(addresses, options) {
     fn = fn || function() {}
 
     sock.once('reply', function(data) {
-      fn(null, data);
+      if (data instanceof Error) {
+        fn(data);
+      }
+      else {
+        fn(null, data);
+      }
     });
 
     sock.once('error', function(err) {
