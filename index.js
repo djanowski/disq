@@ -14,7 +14,8 @@ function connect(addresses, opts) {
 
   var cycle = opts.cycle || 1000;
   var iteration, stats, nodes;
-  var noop = function() { };
+  var noop = function() {};
+  var ops = [];
 
   function reset() {
     stats = {};
@@ -33,24 +34,24 @@ function connect(addresses, opts) {
       sock.setMaxListeners(opts.maxListeners);
     }
 
+    sock.on('reply', function(data) {
+      if (data instanceof Error) {
+        ops.shift()(data);
+      }
+      else {
+        ops.shift()(null, data);
+      }
+    });
+
+    sock.on('error', function(err) {
+      ops.shift()(err);
+    });
+
     return sock;
   }
 
   function write(args, fn) {
-    fn = fn || function() {}
-
-    sock.once('reply', function(data) {
-      if (data instanceof Error) {
-        fn(data);
-      }
-      else {
-        fn(null, data);
-      }
-    });
-
-    sock.once('error', function(err) {
-      fn(err);
-    });
+    ops.push(fn || noop);
 
     sock.write.apply(sock, args);
   }

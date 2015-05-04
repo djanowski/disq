@@ -3,7 +3,7 @@ var disque = require('./index');
 
 const NODES = ['127.0.0.1:7711', '127.0.0.1:7712', '127.0.0.1:7713'];
 const CYCLE = 5;
-const OPTIONS = {cycle: CYCLE, maxListeners: CYCLE * 2 + 1};
+const OPTIONS = {cycle: CYCLE};
 
 function prepare(cb) {
   return function(t) {
