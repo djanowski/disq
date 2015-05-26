@@ -1,5 +1,6 @@
 var test = require('tape');
 var disque = require('./index');
+var mock = require('./mock');
 
 const NODES = ['127.0.0.1:7711', '127.0.0.1:7712', '127.0.0.1:7713'];
 const CYCLE = 5;
@@ -196,6 +197,36 @@ test('connect with comma-separated list of nodes', prepare(function(t, _) {
 
     t.assert(res.length > NODES.length)
     c.quit();
+    t.end();
+  });
+}));
+
+test('auth', prepare(function(t, _) {
+  var password;
+
+  var server = mock({
+    hello: function() { return 'OK' },
+    ping:  function() { return 'PONG' },
+    quit:  function() {
+      this.end();
+      return '';
+    },
+    auth:  function(p) {
+      password = p;
+      return 'OK';
+    }
+  }).listen(7714);
+
+  var c = disque.connect('127.0.0.1:7714', {auth: 'foobar'});
+
+  c.call('PING', function(err, res) {
+    if (err)
+      return t.end(err);
+
+    c.quit();
+    server.close();
+
+    t.equal(password, 'foobar');
     t.end();
   });
 }));

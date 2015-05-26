@@ -1,6 +1,8 @@
 (unreleased)
 ============
 
+* Added authentication support via the `auth` option.
+
 * You can now pass the list of nodes as a comma-separated string. This is
   useful if you're reading this value from an environment variable.
 

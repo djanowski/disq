@@ -14,12 +14,12 @@ function connect(addresses, opts) {
     addresses = addresses.split(',');
   }
 
-  var sock = create(addresses[0]);
-
   var cycle = opts.cycle || 1000;
   var iteration, stats, nodes;
   var noop = function() {};
   var ops = [];
+
+  var sock = create(addresses[0]);
 
   function reset() {
     stats = {};
@@ -212,21 +212,32 @@ function connect(addresses, opts) {
   }
 
   function inspect(cb) {
-    write(['HELLO'], function(err, res) {
+    auth(function(err, res) {
       if (err) return cb(err);
 
-      obj.prefix = res[1].slice(0, 8);
+      write(['HELLO'], function(err, res) {
+        if (err) return cb(err);
 
-      for (var i = 2, l = res.length; i < l; i++) {
-        var node = res[i];
+        obj.prefix = res[1].slice(0, 8);
 
-        var p = node[0].slice(0, 8);
+        for (var i = 2, l = res.length; i < l; i++) {
+          var node = res[i];
 
-        nodes[p] = node[1] + ':' + node[2];
-      }
+          var p = node[0].slice(0, 8);
 
-      cb(null, res);
+          nodes[p] = node[1] + ':' + node[2];
+        }
+
+        cb(null, res);
+      });
     });
+  }
+
+  function auth(cb) {
+    if (opts.auth)
+      write(['AUTH', opts.auth], cb);
+    else
+      cb(null, null);
   }
 
   return obj;

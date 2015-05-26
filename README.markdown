@@ -37,6 +37,12 @@ client.getjob(['queue1'], function(err, jobs) {
 });
 ```
 
+If you need to use authentication, pass in the `auth` option:
+
+```javascript
+var client = disque.connect('127.0.0.1:7711', { auth: 'foobar' });
+```
+
 # Features
 
 - **Automatic connection to the most convenient node in the cluster.**
