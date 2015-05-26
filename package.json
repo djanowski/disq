@@ -1,6 +1,6 @@
 {
   "name": "disque.js",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Redic-inspired Node Disque client",
   "main": "index.js",
   "dependencies": {

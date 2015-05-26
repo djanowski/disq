@@ -1,5 +1,5 @@
-(unreleased)
-============
+0.1.2 - 2015-05-26
+==================
 
 * Added authentication support via the `auth` option.
 
