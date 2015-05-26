@@ -186,3 +186,16 @@ test('ackjob with multiple IDs', prepare(function(t, client) {
     });
   });
 }));
+
+test('connect with comma-separated list of nodes', prepare(function(t, _) {
+  var c = disque.connect(NODES.join(','));
+
+  c.call('HELLO', function(err, res) {
+    if (err)
+      return t.end(err);
+
+    t.assert(res.length > NODES.length)
+    c.quit();
+    t.end();
+  });
+}));

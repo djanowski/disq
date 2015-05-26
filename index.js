@@ -10,6 +10,10 @@ function connect(addresses, opts) {
     getjob: getjob, info: info, quit: quit
   });
 
+  if (addresses.constructor === String) {
+    addresses = addresses.split(',');
+  }
+
   var sock = create(addresses[0]);
 
   var cycle = opts.cycle || 1000;
