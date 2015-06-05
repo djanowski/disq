@@ -54,6 +54,9 @@ var client = disque.connect('127.0.0.1:7711', { auth: 'foobar' });
 
   The frequency of this check is configurable via the `cycle` option.
 
+  Note that we limit this automatic reconnection to the initial node list you
+  provide on connect.
+
 # Roadmap
 
 - Make all methods optionally return a Promise.

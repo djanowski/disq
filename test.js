@@ -160,6 +160,45 @@ test('connect to the best node for job consumption', prepare(function(t, client)
   });
 }));
 
+test('restrict node discovery to the provided nodes', prepare(function(t, client) {
+  // Produce in node #3, assert that consumer never connects to it.
+  var producer = disque.connect([NODES[2]], OPTIONS);
+  var consumer = disque.connect([NODES[0], NODES[1]], OPTIONS);
+
+  consumer.call('PING', function() {
+    producer.call('PING', function() {
+      var count = 0
+        , prefix = consumer.prefix;
+
+      t.assert(prefix.length === 8);
+      t.notEqual(prefix, producer.prefix);
+
+      var check = function(err) {
+        consumer.call('PING', function(err) {
+          if (err) return t.end(err);
+
+          t.notEqual(consumer.prefix, producer.prefix);
+          consumer.quit();
+          producer.quit();
+          t.end();
+        });
+      }
+
+      for (var i = 0; i < CYCLE; i++) {
+        producer.addjob('q5', 'j1', 0, function(err, res) {
+          consumer.getjob(['q5'], {count: 1}, function(err, jobs) {
+            count++;
+
+            if (count === CYCLE) {
+              check();
+            }
+          });
+        });
+      }
+    });
+  });
+}));
+
 test('ackjob', prepare(function(t, client) {
   client.addjob('q6', 'j1', 0, function(err, id) {
     client.ackjob(id, function(err, count) {

@@ -15,15 +15,17 @@ function connect(addresses, opts) {
   }
 
   var cycle = opts.cycle || 1000;
-  var iteration, stats, nodes;
+  var iteration;
+  var stats = new Map();
+  var nodes = new Map();
   var noop = function() {};
   var ops = [];
 
   var sock = create(addresses[0]);
 
   function reset() {
-    stats = {};
-    nodes = {};
+    stats.clear();
+    nodes.clear();
     iteration = 1;
     obj.prefix = undefined;
   }
@@ -48,7 +50,12 @@ function connect(addresses, opts) {
     });
 
     sock.on('error', function(err) {
-      ops.shift()(err);
+      var cb = ops.shift();
+
+      if (cb)
+        cb(err);
+      else
+        throw new Error(err);
     });
 
     return sock;
@@ -72,9 +79,13 @@ function connect(addresses, opts) {
       write(args, cb);
     }
     else {
-      inspect(function(err, res) {
+      explore(function(err, res) {
         if (err) return cb(err);
-        write(args, cb);
+
+        inspect(function(err, res) {
+          if (err) return cb(err);
+          write(args, cb);
+        });
       });
     }
   }
@@ -136,20 +147,17 @@ function connect(addresses, opts) {
   }
 
   function statsmax(stats) {
-    var keys = Object.keys(stats);
-    var maxi = -1;
-    var maxv = null;
+    var maxv = -1;
+    var maxk;
 
-    for (var i = 0, l = keys.length; i < l; i++) {
-      var v = stats[keys[i]];
-
-      if (v > maxv || maxv == null) {
+    stats.forEach(function(v, k) {
+      if (v > maxv) {
+        maxk = k;
         maxv = v;
-        maxi = i;
       }
-    }
+    });
 
-    return keys[maxi];
+    return maxk;
   }
 
   function buildargs(prelude, postlude, args) {
@@ -193,10 +201,9 @@ function connect(addresses, opts) {
         var job = jobs[i]
           , prefix = job[1].slice(2, 10);
 
-        // We can't know all prefixes beforehand
-        // as new nodes can join the cluster after
-        // we inspected it.
-        stats[prefix] = (stats[prefix] || 0) + 1;
+        // Ignore nodes that we don't know about.
+        if (stats.has(prefix))
+          stats.set(prefix, stats.get(prefix) + 1);
       }
 
       if (iteration === cycle) {
@@ -204,11 +211,47 @@ function connect(addresses, opts) {
 
         quit();
 
-        sock = create(nodes[best]);
+        sock = create(nodes.get(best));
       }
 
       cb(err, jobs);
     }
+  }
+
+  function explore(cb) {
+    Promise.all(addresses.map(identify))
+      .then(function() {
+        cb();
+      })
+      .catch(cb)
+  }
+
+  /* async */ function identify(addr) {
+    return new Promise(function(resolve, reject) {
+      var parts = addr.split(':', 2)
+        , sock = hiredis.createConnection(parts[1], parts[0]);
+
+      sock.once('reply', function(data) {
+        sock.end();
+
+        if (data instanceof Error)
+          return reject(data);
+
+        var p = data[1].slice(0, 8);
+
+        nodes.set(p, addr);
+        stats.set(p, 0);
+
+        resolve();
+      });
+
+      sock.once('error', function(err) {
+        sock.end();
+        reject(err);
+      });
+
+      sock.write('HELLO');
+    });
   }
 
   function inspect(cb) {
@@ -219,14 +262,6 @@ function connect(addresses, opts) {
         if (err) return cb(err);
 
         obj.prefix = res[1].slice(0, 8);
-
-        for (var i = 2, l = res.length; i < l; i++) {
-          var node = res[i];
-
-          var p = node[0].slice(0, 8);
-
-          nodes[p] = node[1] + ':' + node[2];
-        }
 
         cb(null, res);
       });
