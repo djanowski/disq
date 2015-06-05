@@ -1,0 +1,10 @@
+language: node_js
+node_js:
+  - "0.12"
+  - iojs
+before_script:
+  - wget https://github.com/antirez/disque/archive/master.tar.gz -O disque-master.tar.gz
+  - tar xf disque-master.tar.gz
+  - cd disque-master && make
+  - cp disque-master/src/disque-server /usr/bin
+script: make
