@@ -5,6 +5,5 @@ node_js:
 before_script:
   - wget https://github.com/antirez/disque/archive/master.tar.gz -O disque-master.tar.gz
   - tar xf disque-master.tar.gz
-  - cd disque-master && make
-  - cp disque-master/src/disque-server /usr/bin
+  - cd disque-master && make && sudo make install
 script: make
