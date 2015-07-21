@@ -1,3 +1,9 @@
+0.1.3 - 2015-07-21
+==================
+
+* Upgraded Tape because older version would cause npm to go crazy.
+
+
 0.1.2 - 2015-05-26
 ==================
 
