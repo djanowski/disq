@@ -7,7 +7,7 @@
     "hiredis": "^0.4.0"
   },
   "devDependencies": {
-    "tape": "^2.14.0"
+    "tape": "^4.0.1"
   },
   "scripts": {
     "test": "node test.js"
