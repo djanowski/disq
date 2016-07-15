@@ -1,6 +1,6 @@
 # Disq
 
-A simple Disque client for Node.js and io.js.
+A simple Disque client for Node.js.
 
 Currently under development, but it's already usable and useful.
 
