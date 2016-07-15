@@ -9,7 +9,10 @@ const reader  = new hiredis.Reader();
 
 class Disq {
   constructor(config) {
-    this.config = function() { return config || {} };
+    if (config instanceof Function)
+      this.config = config;
+    else
+      this.config = function() { return config || {} };
   }
 
   connect() {

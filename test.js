@@ -125,6 +125,27 @@ test('authentication', function(t) {
     });
 });
 
+test('reconfigure with Promise', function(t) {
+  let times = 0;
+
+  const disque = new Disq(function() {
+    const port = 7711 + times;
+    times++;
+    return Promise.resolve({ nodes: [ `127.0.0.1:${port}` ] });
+  });
+
+  return disque.info()
+    .then(function(info) {
+      t.equal(info.tcp_port, '7711');
+      disque.end();
+      return disque.info();
+    })
+    .then(function(info) {
+      t.equal(info.tcp_port, '7712');
+      disque.end();
+    });
+});
+
 test.onFinish(function() {
   disque.end();
 });
