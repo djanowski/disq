@@ -1,37 +1,31 @@
-# disque.js
+# Disq
 
 A simple Disque client for Node.js and io.js.
 
 Currently under development, but it's already usable and useful.
 
-Inspired by [redic.js](https://github.com/cyx/redic.js) (which is inspired
-by [Redic](https://github.com/amakawa/redic)).
 
 # Usage
 
 ```javascript
-var disque = require('disque.js');
-var client = disque.connect(['127.0.0.1:7711', '127.0.0.1:7712']);
+const Disq   = require('disq');
+const disque = new Disq({ nodes: [ '127.0.0.1:7711', '127.0.0.1:7712' ] });
 
-client.addjob('queue1', 'foo', 0, function(err, res) {
-  if (err) return console.error(err);
-
-  console.log('Added job with ID ' + res);
-});
+disque.addjob('queue1', 'foo')
+  .then(function(jobID) {
+    console.log(`Added job with ID ${jobID}`);
+  });
 
 // Meanwhile in a parallel universe
-client.getjob(['queue1'], function(err, jobs) {
-  jobs.forEach(function(job) {
-    var queue   = job[0]
-      , id      = job[1]
-      , payload = job[2];
+disque.getjob('queue1')
+  .then(function(jobs) {
+    jobs.forEach(function(job) {
+      doVeryHeavyWork(job.body);
 
-    doVeryHeavyWork(payload);
-
-    client.ackjob(id, function(err) {
-      if (err) return console.error(err);
-
-      console.log('Processed job ' + id);
+      disque.ackjob(job.id)
+        .then(function() {
+          console.log(`Processed job ${job.id}`);
+        });
     });
   });
 });
@@ -40,8 +34,9 @@ client.getjob(['queue1'], function(err, jobs) {
 If you need to use authentication, pass in the `auth` option:
 
 ```javascript
-var client = disque.connect('127.0.0.1:7711', { auth: 'foobar' });
+const disque = new Disq({ auth: 'foobar' });
 ```
+
 
 # Features
 
@@ -57,10 +52,18 @@ var client = disque.connect('127.0.0.1:7711', { auth: 'foobar' });
   Note that we limit this automatic reconnection to the initial node list you
   provide on connect.
 
+
 # Roadmap
 
-- Make all methods optionally return a Promise.
 - Keep a stats counter by queue name?
+
+
+# Name
+
+After seeing that `disque` was squatted on npm, I named this library `disque.js`.
+That was before I could tell how weird that name was in npm-land.
+So on July 2016, together with a major rewrite, I renamed the library to `disq`.
+
 
 # License
 

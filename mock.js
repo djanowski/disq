@@ -1,22 +1,24 @@
-var net = require('net');
-var hiredis = require("hiredis")
-var reader = new hiredis.Reader();
+const net     = require('net');
+const hiredis = require('hiredis');
+
+
+const reader = new hiredis.Reader();
 
 
 function create(commands) {
-  var server = net.createServer(function(socket) {
+  const server = net.createServer(function(socket) {
 
     socket.on('data', function(data) {
       reader.feed(data);
 
-      var buffer = reader.get();
-      var command = buffer[0].toLowerCase();
-      var args = buffer.slice(1);
+      const buffer  = reader.get();
+      const command = buffer[0].toLowerCase();
+      const args    = buffer.slice(1);
 
       if (!commands[command])
         throw new Error('Command not registered: ' + command);
 
-      var res = reply(commands[command].apply(socket, args));
+      const res = reply(commands[command].apply(socket, args));
 
       try {
         socket.write(res);
@@ -32,6 +34,8 @@ function create(commands) {
 function reply(obj) {
   if (obj.constructor === String)
     return '$' + obj.length + '\r\n' + obj + '\r\n';
+  if (obj.constructor === Array)
+    return '*' + obj.length + '\r\n' + obj.map(reply).join('');
 }
 
 
