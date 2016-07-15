@@ -32,6 +32,9 @@ class Disq {
               this._operations.shift()[1](error);
             });
           this._operations = [];
+
+          if (config.auth)
+            return this.call('auth', config.auth);
         });
     }
   }

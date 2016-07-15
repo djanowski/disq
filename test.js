@@ -96,6 +96,35 @@ test('getjob with options', function(t) {
     });
 });
 
+test('authentication', function(t) {
+  let authenticated = false;
+
+  const disque = new Disq({ nodes: [ '127.0.0.1:7714' ], auth: 's3cr3t' });
+
+  const server = mock({
+    ping: function() {
+      if (authenticated)
+        return 'LEGIT';
+      else
+        return 'MEH';
+    },
+
+    auth: function(password) {
+      authenticated = (password === 's3cr3t');
+      return 'OK';
+    }
+  }).listen(7714);
+
+  return disque.call('ping')
+    .then(function(reply) {
+      t.equal(reply, 'LEGIT');
+    })
+    .then(function() {
+      disque.end();
+      server.close();
+    });
+});
+
 test.onFinish(function() {
   disque.end();
 });
