@@ -1,3 +1,13 @@
+1.0.0 - 2016-07-15
+==================
+
+* Rewrite targeting Node LTS and current. Promises everywhere.
+
+* New API: `new Disq({ nodes: [ ... ] })`. See README for more.
+
+* Client can be reconfigured with a Promise-returning function.
+
+
 0.1.3 - 2015-07-21
 ==================
 

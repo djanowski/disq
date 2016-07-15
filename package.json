@@ -1,7 +1,7 @@
 {
-  "name": "disque.js",
-  "version": "0.1.3",
-  "description": "Redic-inspired Node Disque client",
+  "name": "disq",
+  "version": "1.0.0",
+  "description": "A minimalistic Disque client using modern Node.js.",
   "main": "index.js",
   "dependencies": {
     "hiredis": "^0.5.0"
@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/djanowski/disque.js"
+    "url": "https://github.com/djanowski/disq"
   },
   "keywords": [
     "redis"
@@ -23,7 +23,7 @@
   "author": "Damian Janowski",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/djanowski/disque.js/issues"
+    "url": "https://github.com/djanowski/disq/issues"
   },
-  "homepage": "https://github.com/djanowski/disque.js"
+  "homepage": "https://github.com/djanowski/disq"
 }
