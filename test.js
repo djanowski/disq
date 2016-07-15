@@ -58,7 +58,7 @@ test('addjob with options', function(t) {
   const disque = new Disq({ nodes: [ '127.0.0.1:7714' ] });
 
   const server = mock({
-    addjob: function() {
+    addjob() {
       args = Array.prototype.slice.call(arguments);
       return 'D-123';
     }
@@ -80,7 +80,7 @@ test('getjob with options', function(t) {
   const disque = new Disq({ nodes: [ '127.0.0.1:7714' ] });
 
   const server = mock({
-    getjob: function() {
+    getjob() {
       args = Array.prototype.slice.call(arguments);
       return [[ 'q1', 'D-123', 'j1' ]];
     }
@@ -102,14 +102,14 @@ test('authentication', function(t) {
   const disque = new Disq({ nodes: [ '127.0.0.1:7714' ], auth: 's3cr3t' });
 
   const server = mock({
-    ping: function() {
+    ping() {
       if (authenticated)
         return 'LEGIT';
       else
         return 'MEH';
     },
 
-    auth: function(password) {
+    auth(password) {
       authenticated = (password === 's3cr3t');
       return 'OK';
     }
